@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mandala Mirror</title>
+<style>
+  html,body{height:100%;margin:0;background:#0b1020;color:white;font-family:system-ui,Segoe UI,Roboto}
+  .wrap{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .panel{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  button{padding:8px 10px;border-radius:8px;border:none;cursor:pointer}
+  canvas{border-radius:12px;background:linear-gradient(180deg,#071428,#0b1020);box-shadow:0 12px 32px rgba(0,0,0,.6)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <button id="clear">Clear</button>
+      <label style="display:flex;gap:8px;align-items:center"><span>Symmetry</span>
+        <input id="segs" type="range" min="2" max="12" value="8">
+      </label>
+      <button id="save">Save</button>
+    </div>
+    <canvas id="c" width="680" height="680"></canvas>
+  </div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const segsInput = document.getElementById('segs');
+  const clearBtn = document.getElementById('clear');
+  const saveBtn = document.getElementById('save');
+  const center = {x:canvas.width/2,y:canvas.height/2};
+  let mouseDown=false, color='hsl(200 70% 60%)', size=6;
+
+  function drawLine(x1,y1,x2,y2,angle){
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(x1-center.x, y1-center.y);
+    ctx.lineTo(x2-center.x, y2-center.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+
+  function draw(e){
+    if(!mouseDown) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (canvas.width/rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height/rect.height);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
+    const segs = +segsInput.value;
+    for(let i=0;i<segs;i++){
+      const angle = (Math.PI*2) * (i/segs);
+      drawLine(canvas._lastX || x, canvas._lastY || y, x, y, angle);
+    }
+    canvas._lastX = x; canvas._lastY = y;
+  }
+
+  canvas.addEventListener('pointerdown', (e)=> { mouseDown=true; canvas._lastX=null; canvas._lastY=null; draw(e); });
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', ()=> mouseDown=false);
+  canvas.addEventListener('pointerleave', ()=> mouseDown=false);
+
+  clearBtn.onclick = ()=> {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+  saveBtn.onclick = ()=> {
+    const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = 'mandala.png'; a.click();
+  };
+
+  // initialize subtle radial grid
+  ctx.globalAlpha = .06;
+  for(let i=0;i<360;i+=10){
+    ctx.beginPath();
+    ctx.moveTo(center.x, center.y);
+    ctx.lineTo(center.x + Math.cos(i*Math.PI/180)*300, center.y + Math.sin(i*Math.PI/180)*300);
+    ctx.strokeStyle = '#fff'; ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+})();
+</script>
+</body>
+</html>

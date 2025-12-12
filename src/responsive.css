@@ -1,0 +1,51 @@
+/* ---------- super-strong overrides (temporary) ---------- */
+/* Targets many Tailwind wrapper utilities and custom wrapper names */
+
+/* catch classes like max-w-md, max-w-lg, etc. */
+[class*="max-w-"] {
+  max-width: none !important;
+}
+
+/* catch Tailwind arbitrary widths like w-[375px] or w-[420px] */
+[class*="w-["] {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* catch common mobile/phone wrapper classnames */
+.phone-wrapper, .phone-frame, .mobile-only, .fixed-phone, .phone, .phone-frame {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 auto !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+/* catch utility combos (mx-auto + narrow) */
+.mx-auto[class*="max-w-"], .mx-auto[class*="w-["] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}
+
+/* root/app wrapper */
+#root, #root > div, .app, .app-wrapper, .main, .main-wrapper, .container {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
+  transform: none !important;
+}
+
+/* expand card components */
+.card, .auth-card, .login-card, .panel {
+  width: 100% !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  padding: 16px !important;
+}
+
+/* safety */
+body, #root, .app, .container { overflow-x: hidden !important; }

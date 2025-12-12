@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mindful Coloring</title>
+<style>
+  html,body{height:100%;margin:0;font-family:system-ui, -apple-system, Roboto, Arial;background:#f6fbff}
+  .app{max-width:1000px;margin:28px auto;padding:16px}
+  header{display:flex;align-items:center;gap:12px;justify-content:space-between}
+  .palette{display:flex;gap:10px;align-items:center}
+  .sw{width:36px;height:36px;border-radius:10px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.06)}
+  .tool{padding:8px 10px;border-radius:8px;border:none;background:#09426a;color:white;cursor:pointer}
+  .canvas-wrap{margin-top:12px;border-radius:12px;padding:10px;background:linear-gradient(180deg,#fff,#f4fbff);box-shadow:0 10px 30px rgba(14,54,86,.06)}
+  canvas{display:block;background:#fff;border-radius:8px;max-width:100%;touch-action:none}
+  .controls{display:flex;gap:10px;align-items:center}
+  .muted{color:#335}
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h2 style="margin:0">Mindful Coloring</h2>
+        <div class="muted">Draw gently — save when finished</div>
+      </div>
+      <div class="controls">
+        <div class="palette" id="palette"></div>
+        <button id="clear" class="tool">Clear</button>
+        <button id="save" class="tool">Save PNG</button>
+      </div>
+    </header>
+
+    <div class="canvas-wrap">
+      <canvas id="c" width="900" height="520"></canvas>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const colors = ['#FF6B6B','#F7B267','#F4F4F9','#6BCB77','#4D96FF','#9C66FF','#FF9CEE','#2EC4B6','#FFD166'];
+  const palette = document.getElementById('palette');
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  let drawing=false, color=colors[0], last={x:0,y:0}, size=18;
+
+  // fill background with optional pattern
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // build palette
+  colors.forEach(c=>{
+    const sw = document.createElement('div');
+    sw.className = 'sw';
+    sw.style.background = c;
+    sw.title = c;
+    sw.onclick = ()=> color = c;
+    palette.appendChild(sw);
+  });
+
+  function pos(e){
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches ? e.touches[0] : e;
+    return {x: (touch.clientX - rect.left) * (canvas.width/rect.width), y: (touch.clientY - rect.top) * (canvas.height/rect.height)};
+  }
+
+  function start(e){
+    drawing = true;
+    last = pos(e);
+  }
+  function move(e){
+    if(!drawing) return;
+    e.preventDefault();
+    const p = pos(e);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+  }
+  function end(){ drawing=false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('mouseout', end);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end);
+
+  document.getElementById('clear').onclick = ()=> {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  };
+  document.getElementById('save').onclick = ()=> {
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'coloring.png';
+    a.click();
+  };
+})();
+</script>
+</body>
+</html>

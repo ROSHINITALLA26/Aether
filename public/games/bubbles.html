@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bubble Pop • Stress Relief</title>
+<style>
+  html,body {
+    height: 100%;
+    margin: 0;
+    background: #eaf6ff;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    overflow: hidden;
+  }
+  .score {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: white;
+    padding: 10px 16px;
+    border-radius: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    font-weight: bold;
+  }
+  .bubble {
+    position: central;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(255,255,255,0.1)),
+                linear-gradient(180deg, rgba(125,211,252,0.25), rgba(59,130,246,0.1));
+    box-shadow: 0 8px 20px rgba(37,83,137,0.25);
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .bubble.pop {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="score" id="score">Score: 0</div>
+
+<script>
+(function(){
+  let score = 0;
+  const scoreEl = document.getElementById('score');
+
+  function random(min, max){
+    return Math.random() * (max - min) + min;
+  }
+
+  function spawnBubble(){
+    const bubble = document.createElement('div');
+    const size = random(40, 120);
+    bubble.className = 'bubble';
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    bubble.style.left = random(0, window.innerWidth - size) + 'px';
+    bubble.style.top = window.innerHeight + 'px';
+
+    document.body.appendChild(bubble);
+
+    // animation: float upward
+    setTimeout(() => {
+      bubble.style.top = random(-150, -50) + 'px';
+    }, 50);
+
+    // pop logic
+    bubble.onclick = () => {
+      bubble.classList.add('pop');
+      score += Math.round(150 / size * 10);
+      scoreEl.textContent = 'Score: ' + score;
+      setTimeout(() => bubble.remove(), 250);
+    };
+
+    // auto remove
+    setTimeout(() => bubble.remove(), 9000);
+  }
+
+  // spawn constantly
+  setInterval(spawnBubble, 800);
+})();
+</script>
+
+</body>
+</html>

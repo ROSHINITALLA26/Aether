@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Guided Breathing • Relax</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1320; --accent:#7dd3fc; --muted:#9aa7b2;
+  }
+  html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;}
+  body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071029 0%, #0b1220 100%);color:white}
+  .wrap{width:min(720px,94vw);padding:28px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 30px rgba(2,6,23,.6);text-align:center}
+  h1{margin:0 0 8px;font-size:20px}
+  p.lead{margin:0 0 20px;color:var(--muted)}
+  .circle{
+    margin:20px auto 10px;width:240px;height:240px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background: radial-gradient(circle at 35% 20%, rgba(125,211,252,0.14), rgba(125,211,252,0.04));
+    transition: all 1s cubic-bezier(.22,.9,.21,1);
+    box-shadow: 0 8px 30px rgba(13,31,64,0.6), inset 0 -6px 20px rgba(3,7,17,0.4);
+  }
+  .circle.small{transform: scale(.5);opacity:.9}
+  .circle.medium{transform: scale(.8);opacity:1}
+  .circle.large{transform: scale(1.2);opacity:1}
+  .hint{font-size:22px;letter-spacing:0.8px}
+  .controls{display:flex;gap:12px;justify-content:center;margin-top:18px}
+  .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;color:var(--accent);cursor:pointer}
+  .btn.primary{background:linear-gradient(90deg, rgba(125,211,252,0.08), rgba(125,211,252,0.02));border-color:rgba(125,211,252,0.2)}
+  .settings{margin-top:14px;color:var(--muted);font-size:13px}
+  label{display:inline-flex;gap:8px;align-items:center}
+  input[type="range"]{width:160px}
+  footer{margin-top:18px;color:rgba(255,255,255,0.18);font-size:12px}
+</style>
+</head>
+<body>
+  <div class="wrap" role="application" aria-label="Guided breathing exercise">
+    <h1>Guided Breathing</h1>
+    <p class="lead">Follow the circle — inhale as it grows, exhale as it shrinks.</p>
+
+    <div id="circle" class="circle medium" aria-hidden="true">
+      <div class="hint" id="hint">Get Ready</div>
+    </div>
+
+    <div class="controls">
+      <button id="start" class="btn primary">Start</button>
+      <button id="pause" class="btn">Pause</button>
+      <button id="stop" class="btn">Stop</button>
+    </div>
+
+<script>
+(function(){
+  const circle = document.getElementById('circle');
+  const hint = document.getElementById('hint');
+  const startBtn = document.getElementById('start');
+  const pauseBtn = document.getElementById('pause');
+  const stopBtn = document.getElementById('stop');
+
+  let running=false, paused=false, intervalId=null;
+
+  function setState(size, text){
+    circle.className = 'circle ' + size;
+    hint.textContent = text;
+  }
+
+  function start(){
+    if(running && !paused) return;
+    running=true;
+    paused=false;
+    clearInterval(intervalId);
+    let phase = 0;
+
+    intervalId = setInterval(()=>{
+      if(paused) return;
+      phase = (phase + 1) % 3;
+
+      if(phase === 0) setState('large', 'Inhale');
+      if(phase === 1) setState('medium', 'Hold');
+      if(phase === 2) setState('small', 'Exhale');
+    }, 4000);
+  }
+
+  function pause(){
+    if(!running) return;
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    if(paused) hint.textContent = 'Paused';
+  }
+
+  function stop(){
+    clearInterval(intervalId);
+    running=false;
+    paused=false;
+    setState('medium','Done');
+    pauseBtn.textContent = 'Pause';
+  }
+
+  startBtn.onclick = start;
+  pauseBtn.onclick = pause;
+  stopBtn.onclick = stop;
+})();
+</script>
+</body>
+</html>
